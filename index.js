@@ -12,12 +12,15 @@ const app = express();
 
 
 //Import Models
-const User = require('./models/user')
+require('./models/user')
+require('./models/claimtype')
+require('./models/staffmanage')
 
 
 
 //Routes
 const login = require('./routes/userRoutes')
+const staffmanage = require('./routes/staffRoutes')
 
 // Connect to MongoDB
 connectDB();
@@ -31,6 +34,7 @@ app.use(cors());
 
 // Set the routing
 app.use('/api', login)
+app.use('/api', staffmanage)
 
 
 
