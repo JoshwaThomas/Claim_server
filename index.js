@@ -22,6 +22,7 @@ require('./models/staffmanage')
 const login = require('./routes/userRoutes')
 const staffmanage = require('./routes/staffRoutes')
 const claimmanage = require('./routes/claimManageRoute')
+const claimentry = require('./routes/claimEntryRoute')
 
 // Connect to MongoDB
 connectDB();
@@ -37,6 +38,7 @@ app.use(cors());
 app.use('/api', login)
 app.use('/api', claimmanage)
 app.use('/api/staff', staffmanage)
+app.use('/api', claimentry)
 
 
 
