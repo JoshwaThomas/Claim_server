@@ -6,6 +6,8 @@ const Staff = require('../models/staffmanage');
 router.get('/getStaffByPhone/:phone', async (req, res) => {
   try {
     const staff = await Staff.findOne({ phone_no: req.params.phone });
+    console.log(staff);
+    
 
     if (!staff) {
       return res.status(404).json({ message: 'Staff not found' });
@@ -15,7 +17,11 @@ router.get('/getStaffByPhone/:phone', async (req, res) => {
       staff_id: staff.staff_id,
       staff_name: staff.staff_name,
       department: staff.department,
-      designation: staff.designation
+      designation: staff.designation,
+      employment_type: staff.employment_type,
+      email:staff.email,
+      bank_acc_no:staff.bank_acc_no,
+      ifsc_code:staff.ifsc_code
     });
   } catch (error) {
     console.error('Error fetching staff:', error);
