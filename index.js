@@ -15,6 +15,7 @@ const app = express();
 require('./models/user')
 require('./models/claimtype')
 require('./models/staffmanage')
+require('./models/claimEntry')
 
 
 
@@ -23,6 +24,7 @@ const login = require('./routes/userRoutes')
 const staffmanage = require('./routes/staffRoutes')
 const claimmanage = require('./routes/claimManageRoute')
 const claimentry = require('./routes/claimEntryRoute')
+const cliamReport = require('./routes/claimReport')
 
 // Connect to MongoDB
 connectDB();
@@ -39,6 +41,7 @@ app.use('/api', login)
 app.use('/api', claimmanage)
 app.use('/api/staff', staffmanage)
 app.use('/api', claimentry)
+app.use('/api', cliamReport)
 
 
 
