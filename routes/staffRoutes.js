@@ -48,7 +48,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     await Staff.insertMany(data);
-    fs.unlink(req.file.path, () => {});
+    fs.unlink(req.file.path, () => { });
     res.status(200).json({ message: '✅ Data uploaded successfully' });
   } catch (err) {
     console.error('Upload error:', err);
@@ -64,6 +64,80 @@ router.get('/', async (req, res) => {
     res.status(200).json(staffList);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch staff data' });
+  }
+});
+
+// Add new staff
+router.post('/', async (req, res) => {
+  try {
+    const { staff_id, staff_name, department, designation, phone_no, email, bank_acc_no, ifsc_code, employment_type, bank_name,
+      branch_name, branch_code } = req.body;
+
+    // Check duplicates
+    const existing = await Staff.findOne({ $or: [{ phone_no }, { bank_acc_no }] });
+    if (existing) {
+      return res.status(400).json({ error: 'Duplicate phone number or bank account number' });
+    }
+
+    const newStaff = new Staff({
+      staff_id,
+      staff_name,
+      department,
+      designation,
+      phone_no,
+      email,
+      bank_acc_no,
+      ifsc_code,
+      employment_type,
+      bank_name,
+      branch_name,
+      branch_code
+    });
+
+    await newStaff.save();
+    res.status(201).json({ message: 'Staff added successfully' });
+  } catch (err) {
+    console.error('Add error:', err);
+    res.status(500).json({ error: 'Failed to add staff' });
+  }
+});
+
+router.post('/', async (req, res) => {
+  try {
+    const staff = new Staff(req.body);
+    await staff.save();
+    res.status(201).json({ message: 'Staff added successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add staff' });
+  }
+});
+
+// UPDATE staff by staff_id
+router.put('/edit/:staff_id', async (req, res) => {
+  try {
+    const updated = await Staff.findOneAndUpdate(
+      { staff_id: req.params.staff_id },
+      req.body,
+      { new: true }
+    );
+
+    if (!updated) return res.status(404).json({ error: 'Staff not found' });
+    res.json({ message: 'Staff updated successfully', updated });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update staff' });
+  }
+});
+
+// DELETE staff by staff_id
+router.delete('/delete/:staff_id', async (req, res) => {
+  try {
+    const deleted = await Staff.findOneAndDelete({ staff_id: req.params.staff_id });
+
+    if (!deleted) return res.status(404).json({ error: 'Staff not found' });
+
+    res.status(200).json({ message: 'Staff deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete staff' });
   }
 });
 

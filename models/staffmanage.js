@@ -9,7 +9,10 @@ const staffSchema = new mongoose.Schema({
     email:{type:String,required:true},
     bank_acc_no:{type:String,required:true,unique:true},
     ifsc_code:{type:String,required:true},
-    employment_type:{type:String,required:true}
+    employment_type:{type:String,required:true},
+    bank_name:{type:String,required:true},
+    branch_name:{type:String,required:true},
+    branch_code:{type:String,required:true}
 })
 
 const Staff = mongoose.model('staff_manage',staffSchema)
