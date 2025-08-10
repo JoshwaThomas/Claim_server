@@ -26,6 +26,7 @@ const claimmanage = require('./routes/claimManageRoute')
 const claimentry = require('./routes/claimEntryRoute')
 const cliamReport = require('./routes/claimReport')
 const Setting = require('./routes/settingRoute')
+const Dashboard = require('./routes/dashboardRoute')
 
 // Connect to MongoDB
 connectDB();
@@ -44,6 +45,7 @@ app.use('/api/staff', staffmanage)
 app.use('/api', claimentry)
 app.use('/api', cliamReport)
 app.use('/api', Setting)
+app.use('/api', Dashboard)
 
 
 
