@@ -11,6 +11,12 @@ const ClaimTypeSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+
+  // Flexible amount settings: only include relevant keys
+  amount_settings: {
+    type: mongoose.Schema.Types.Mixed, // Accepts any object shape
+    default: {},
+  },
 }, {
   timestamps: true,
 });
