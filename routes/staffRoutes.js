@@ -70,7 +70,7 @@ router.get('/', async (req, res) => {
 // Add new staff
 router.post('/', async (req, res) => {
   try {
-    const { staff_id, staff_name, department, designation, phone_no, email, bank_acc_no, ifsc_code, employment_type, bank_name,
+    const { staff_id, staff_name, department, designation, category, phone_no, email, bank_acc_no, ifsc_code, employment_type, bank_name,
       branch_name, branch_code } = req.body;
 
     // Check duplicates
@@ -84,6 +84,7 @@ router.post('/', async (req, res) => {
       staff_name,
       department,
       designation,
+      category,
       phone_no,
       email,
       bank_acc_no,
