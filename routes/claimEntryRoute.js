@@ -88,7 +88,7 @@ router.post('/calculateAmount', async (req, res) => {
         amount = ciaRate * parseInt(no_of_papers);
         break;
       case 'SCRUTINY CLAIM':
-        const { scrutiny_level, scrutiny_no_of_papers, scrutiny_days } = req.body;        
+        const { scrutiny_level, scrutiny_no_of_papers, scrutiny_days } = req.body;
 
         if (!scrutiny_level || isNaN(scrutiny_no_of_papers) || isNaN(scrutiny_days)) {
           return res.status(400).json({ message: 'Missing scrutiny level, papers, or days' });
@@ -107,6 +107,39 @@ router.post('/calculateAmount', async (req, res) => {
           paperRate * parseInt(scrutiny_no_of_papers) +
           dayRate * parseInt(scrutiny_days);
         break;
+
+      case 'CENTRAL VALUATION':
+        const {
+          total_scripts,
+          days_halted,
+          travel_allowance,
+          tax_applicable // only "AIDED" or "SF"
+        } = req.body;
+
+        if (
+          isNaN(total_scripts) ||
+          isNaN(days_halted) ||
+          isNaN(travel_allowance)
+        ) {
+          return res.status(400).json({ message: 'Missing or invalid Central Valuation inputs' });
+        }
+
+        const scriptRate = claim.amount_settings?.script_rate || 0;
+        const haltRate = claim.amount_settings?.halt_day_rate || 0;
+
+        const totalScriptsAmount = scriptRate * parseInt(total_scripts);
+        const haltAmount = haltRate * parseInt(days_halted);
+        const travelAmount = parseFloat(travel_allowance);
+
+        const total = totalScriptsAmount + haltAmount + travelAmount;
+
+        // ✅ Apply 10% tax reduction only if AIDED
+        const tax = tax_applicable === 'AIDED' ? total * 0.1 : 0;
+
+        amount = total - tax;
+        break;
+
+
 
 
       default:

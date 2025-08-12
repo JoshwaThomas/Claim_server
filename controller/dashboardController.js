@@ -21,4 +21,8 @@ const getClaimCount = async (req, res) => {
   }
 };
 
-module.exports = { getClaimCount };
+const getStaff = async(req, res)=>{
+
+}
+
+module.exports = { getClaimCount, getStaff };
