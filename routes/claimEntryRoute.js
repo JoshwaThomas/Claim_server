@@ -49,7 +49,7 @@ router.post('/postClaim', async (req, res) => {
 
 router.post('/calculateAmount', async (req, res) => {
   try {
-    const { claim_type_name, qps_level, no_of_qps, no_of_papers } = req.body;
+    const { claim_type_name } = req.body;
 
     if (!claim_type_name) {
       return res.status(400).json({ message: 'Claim type is required' });
@@ -64,30 +64,44 @@ router.post('/calculateAmount', async (req, res) => {
     let amount = 0;
 
     switch (claim_type_name) {
-      case 'QPS':
-        if (!qps_level || !no_of_qps) {
-          return res.status(400).json({ message: 'Missing QPS level or count' });
+      // 🔷 QPS Claim
+      case 'QPS': {
+        const { no_of_qps_ug, no_of_qps_pg, no_of_scheme } = req.body;
+
+        const ugCount = isNaN(no_of_qps_ug) ? 0 : parseInt(no_of_qps_ug);
+        const pgCount = isNaN(no_of_qps_pg) ? 0 : parseInt(no_of_qps_pg);
+        const schemeCount = isNaN(no_of_scheme) ? 0 : parseInt(no_of_scheme);
+
+        const ugRate = settings.qps_ug_amount || 0;
+        const pgRate = settings.qps_pg_amount || 0;
+        const schemeRate = settings.qps_scheme_amount || 0;
+
+        amount = ugRate * ugCount + pgRate * pgCount + schemeRate * schemeCount;
+
+        if (amount === 0) {
+          return res.status(400).json({ message: 'No valid QPS or Scheme count provided' });
         }
 
-        const qpsRate =
-          qps_level === 'UG'
-            ? settings.qps_ug_amount || 0
-            : qps_level === 'PG'
-              ? settings.qps_pg_amount || 0
-              : 0;
+        return res.status(200).json({ amount });
+      }
 
-        amount = qpsRate * parseInt(no_of_qps);
-        break;
 
-      case 'CIA REAPEAR CLAIM':
-        if (!no_of_papers) {
-          return res.status(400).json({ message: 'Missing number of papers' });
+      // 🔷 CIA Reappear Claim
+      case 'CIA REAPEAR CLAIM': {
+        const { no_of_papers } = req.body;
+
+        if (!no_of_papers || isNaN(no_of_papers)) {
+          return res.status(400).json({ message: 'Missing or invalid number of papers' });
         }
 
         const ciaRate = settings.cia_reval_amount || 0;
         amount = ciaRate * parseInt(no_of_papers);
-        break;
-      case 'SCRUTINY CLAIM':
+
+        return res.status(200).json({ amount });
+      }
+
+      // 🔷 Scrutiny Claim
+      case 'SCRUTINY CLAIM': {
         const { scrutiny_level, scrutiny_no_of_papers, scrutiny_days } = req.body;
 
         if (!scrutiny_level || isNaN(scrutiny_no_of_papers) || isNaN(scrutiny_days)) {
@@ -96,24 +110,27 @@ router.post('/calculateAmount', async (req, res) => {
 
         const paperRate =
           scrutiny_level === 'UG'
-            ? claim.amount_settings?.scrutiny_ug_rate || 0
+            ? settings.scrutiny_ug_rate || 0
             : scrutiny_level === 'PG'
-              ? claim.amount_settings?.scrutiny_pg_rate || 0
+              ? settings.scrutiny_pg_rate || 0
               : 0;
 
-        const dayRate = claim.amount_settings?.scrutiny_day_rate || 0;
+        const dayRate = settings.scrutiny_day_rate || 0;
 
         amount =
           paperRate * parseInt(scrutiny_no_of_papers) +
           dayRate * parseInt(scrutiny_days);
-        break;
 
-      case 'CENTRAL VALUATION':
+        return res.status(200).json({ amount });
+      }
+
+      // 🔷 Central Valuation Claim
+      case 'CENTRAL VALUATION': {
         const {
           total_scripts,
           days_halted,
           travel_allowance,
-          tax_applicable // only "AIDED" or "SF"
+          tax_applicable
         } = req.body;
 
         if (
@@ -124,31 +141,79 @@ router.post('/calculateAmount', async (req, res) => {
           return res.status(400).json({ message: 'Missing or invalid Central Valuation inputs' });
         }
 
-        const scriptRate = claim.amount_settings?.script_rate || 0;
-        const haltRate = claim.amount_settings?.halt_day_rate || 0;
+        const scriptRate = settings.script_rate || 0;
+        const haltRate = settings.halt_day_rate || 0;
 
         const totalScriptsAmount = scriptRate * parseInt(total_scripts);
         const haltAmount = haltRate * parseInt(days_halted);
         const travelAmount = parseFloat(travel_allowance);
 
         const total = totalScriptsAmount + haltAmount + travelAmount;
-
-        // ✅ Apply 10% tax reduction only if AIDED
-        const tax = tax_applicable === 'AIDED' ? total * 0.1 : 0;
+        const tax = tax_applicable?.toLowerCase() === 'aided' ? total * 0.1 : 0;
 
         amount = total - tax;
-        break;
 
+        return res.status(200).json({ amount });
+      }
 
+      // 🔷 Practical Exam Claim
+      case 'PRACTICAL EXAM CLAIM': {
+        const {
+          no_of_qps,              // from form.qps_paper_setting
+          total_no_student,       // from form.total_students
+          degree_level,           // UG / PG
+          no_of_days_halted,      // from form.days_halted
+          tax_applicable          // from form.tax_type
+        } = req.body;
 
+        console.log("✅ Practical Claim Body:", req.body);
 
+        if (
+          isNaN(no_of_qps) ||
+          isNaN(total_no_student) ||
+          isNaN(no_of_days_halted) ||
+          !degree_level
+        ) {
+          return res.status(400).json({ message: 'Missing or invalid Practical Exam inputs' });
+        }
+
+        const qpsCount = parseInt(no_of_qps);
+        const studentCount = parseInt(total_no_student);
+        const haltDays = parseInt(no_of_days_halted);
+
+        const qpsRate =
+          qpsCount === 1
+            ? settings.qps_single_rate || 0
+            : settings.qps_multiple_rate || 0;
+
+        const studentRate =
+          degree_level === 'UG'
+            ? settings.ug_student_rate || 0
+            : degree_level === 'PG'
+              ? settings.pg_student_rate || 0
+              : 0;
+
+        const haltRate = settings.halt_day_rate || 0;
+
+        const studentAmount = studentRate * studentCount;
+        const haltAmount = haltRate * haltDays;
+
+        const total = qpsRate + studentAmount + haltAmount;
+        const tax = tax_applicable === 'Aided' ? total * 0.1 : 0;
+
+        amount = total - tax;
+
+        console.log("✅ Calculated Practical Exam Amount:", amount);
+
+        return res.status(200).json({ amount });
+      }
+
+      // 🔷 Unsupported Claim
       default:
         return res.status(400).json({ message: 'Unsupported claim type' });
     }
-
-    res.status(200).json({ amount });
   } catch (error) {
-    console.error('Error calculating amount:', error);
+    console.error('❌ Error calculating amount:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
