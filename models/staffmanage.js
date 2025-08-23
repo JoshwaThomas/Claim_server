@@ -8,6 +8,7 @@ const staffSchema = new mongoose.Schema({
     category:{type:String,required:true},
     phone_no:{type:Number,required:true,unique:true},
     email:{type:String,required:true},
+    college:{type:String,required:true},
     bank_acc_no:{type:String,required:true,unique:true},
     ifsc_code:{type:String,required:true},
     employment_type:{type:String,required:true},
