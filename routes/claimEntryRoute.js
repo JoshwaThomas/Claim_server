@@ -208,6 +208,43 @@ router.post('/calculateAmount', async (req, res) => {
         return res.status(200).json({ amount });
       }
 
+      // 🔷 Ability Enhancement Claim
+      case 'ABILITY ENHANCEMENT CLAIM': {
+        const {
+          ability_total_no_students,
+          ability_no_of_days_halted,
+          ability_tax_type
+        } = req.body;
+
+        if (
+          isNaN(ability_total_no_students) ||
+          isNaN(ability_no_of_days_halted)
+        ) {
+          return res.status(400).json({ message: 'Missing or invalid Ability Enhancement inputs' });
+        }
+
+        const studentCount = parseInt(ability_total_no_students);
+        const haltDays = parseInt(ability_no_of_days_halted);
+
+        const studentRate = settings.student_rate || 0;
+        const haltRate = settings.halted_day_rate || 0;
+        const taxPercent = settings.tax_percentage || 0;
+
+        const baseAmount = (studentRate * studentCount) + (haltRate * haltDays);
+
+        // ✅ Apply tax only if type is AIDED
+        const tax =
+          ability_tax_type?.toUpperCase() === 'AIDED' && taxPercent > 0
+            ? baseAmount * (taxPercent / 100)
+            : 0;
+
+        amount = baseAmount + tax;
+
+        return res.status(200).json({ amount });
+      }
+
+
+
       // 🔷 Unsupported Claim
       default:
         return res.status(400).json({ message: 'Unsupported claim type' });

@@ -13,12 +13,22 @@ const claimEntrySchema = new mongoose.Schema({
   submission_date: { type: Date },
   credited_date: { type: Date },
   amount: { type: Number, required: true },
-  remarks: { type: String, required:false },
-  bank_name: { type: String, required:false },
-  branch_name: { type: String, required:false },
-  branch_code: { type: String, required:false},
+  remarks: { type: String, required: false },
+  bank_name: { type: String, required: false },
+  branch_name: { type: String, required: false },
+  branch_code: { type: String, required: false },
   ifsc_code: { type: String, required: true },
-  account_no: { type: String, required: true }
+  account_no: { type: String, required: true },
+  // ✅ New fields for workflow tracking
+  status: {
+    type: String,
+    default: 'Pending', // Other values: 'Submitted to Principal', 'Credited'
+    enum: ['Pending', 'Submitted to Principal', 'Credited']
+  },
+  payment_report_id: {
+    type: String,
+    default: ''
+  }
 }, {
   timestamps: true
 });
