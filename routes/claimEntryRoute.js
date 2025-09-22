@@ -88,17 +88,21 @@ router.post('/calculateAmount', async (req, res) => {
 
       // 🔷 CIA Reappear Claim
       case 'CIA REAPEAR CLAIM': {
-        const { no_of_papers } = req.body;
+        const { no_of_papers, role_type } = req.body;
 
-        if (!no_of_papers || isNaN(no_of_papers)) {
-          return res.status(400).json({ message: 'Missing or invalid number of papers' });
+        if (!no_of_papers || isNaN(no_of_papers) || !role_type) {
+          return res.status(400).json({ message: 'Missing or invalid inputs for CIA Reappear' });
         }
 
-        const ciaRate = settings.cia_reval_amount || 0;
-        amount = ciaRate * parseInt(no_of_papers);
+        const staffRate = settings.cia_reval_staff_amount || settings.cia_reval_amount || 0;
+        const tutorRate = settings.cia_reval_tutor_amount || settings.cia_reval_amount || 0;
+
+        const rate = role_type === 'Staff' ? staffRate : tutorRate;
+        const amount = rate * parseInt(no_of_papers);
 
         return res.status(200).json({ amount });
       }
+
 
       // 🔷 Scrutiny Claim
       case 'SCRUTINY CLAIM': {

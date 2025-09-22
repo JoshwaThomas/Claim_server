@@ -72,6 +72,30 @@
 const express = require('express');
 const router = express.Router();
 const claimEntry = require('../models/claimEntry');
+const nodemailer = require('nodemailer');
+
+
+
+// Setup transporter (use Gmail or any SMTP)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'your-email@gmail.com',
+    pass: 'your-app-password' // Use App Password if 2FA is enabled
+  }
+});
+
+// Function to send email
+const sendCreditedEmail = async (recipientEmail, staffName, amount) => {
+  const mailOptions = {
+    from: 'your-email@gmail.com',
+    to: recipientEmail,
+    subject: '💰 Claim Credited Notification',
+    text: `Dear ${staffName},\n\nYour claim of ₹${amount} has been successfully credited via NEFT.\n\nRegards,\nFinance Team`
+  };
+
+  await transporter.sendMail(mailOptions);
+};
 
 // ✅ Get all PR IDs with claim counts (only for claims submitted to Principal and not yet credited)
 router.get('/pr-ids', async (req, res) => {
@@ -138,11 +162,17 @@ router.put('/update/:id', async (req, res) => {
       { new: true }
     );
 
+    // Send email after update
+    if (updated.status === 'Credited' && updated.staff_email) {
+      await sendCreditedEmail(updated.staff_email, updated.staff_name, updated.amount);
+    }
+
     res.json(updated);
   } catch (err) {
     console.error('Error updating claim:', err);
     res.status(500).json({ error: 'Failed to update claim' });
   }
 });
+
 
 module.exports = router;
