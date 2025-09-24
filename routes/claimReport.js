@@ -6,6 +6,7 @@ const PDFTable = require('pdfkit-table');
 
 const { getClaim } = require('../controller/claimReportController');
 
+router.get('/getclaimEntry', getClaim)
 
 
 // routes/claimReportRoutes.js
