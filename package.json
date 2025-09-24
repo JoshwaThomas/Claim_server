@@ -27,13 +27,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.0",
     "multer": "^2.0.2",
-<<<<<<< HEAD
-    "nodemailer": "^7.0.6",
-    "pdfkit": "^0.17.2",
-=======
     "pdfkit": "^0.17.2",
     "pdfkit-table": "^0.1.99",
->>>>>>> d6c50a74005c16add69ec7a77552f38bcaebaaac
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
