@@ -80,18 +80,19 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'your-email@gmail.com',
-    pass: 'your-app-password' // Use App Password if 2FA is enabled
+    user: 'sirajhanifa786@gmail.com',
+    pass: 'exmp qlur pbvr uysn' // Use App Password if 2FA is enabled
   }
 });
 
 // Function to send email
 const sendCreditedEmail = async (recipientEmail, staffName, amount) => {
   const mailOptions = {
-    from: 'your-email@gmail.com',
+    from: 'sirajhanifa786@gmail.com',
     to: recipientEmail,
     subject: '💰 Claim Credited Notification',
-    text: `Dear ${staffName},\n\nYour claim of ₹${amount} has been successfully credited via NEFT.\n\nRegards,\nFinance Team`
+    text: `Dear ${staffName},\n\nYour claim of ₹${amount} has been successfully credited via NEFT.\n\nRegards,\nFinance Team\nJamal Mohamed College, Trichy`
+
   };
 
   await transporter.sendMail(mailOptions);
@@ -163,9 +164,11 @@ router.put('/update/:id', async (req, res) => {
     );
 
     // Send email after update
-    if (updated.status === 'Credited' && updated.staff_email) {
-      await sendCreditedEmail(updated.staff_email, updated.staff_name, updated.amount);
+    if (updated.status === 'Credited' && updated.email) {
+      await sendCreditedEmail(updated.email, updated.staff_name, updated.amount);
+      console.log("✅ Successfully sent email to", updated.email);
     }
+
 
     res.json(updated);
   } catch (err) {

@@ -30,14 +30,12 @@ router.put('/submitClaims', async (req, res) => {
       return res.status(200).json({ message: 'No unsubmitted claims found.', prId: '', submission_date: '' });
     }
 
-    // Count how many claims submitted today for PR ID
-    const countToday = await ClaimEntry.countDocuments({
-      submission_date: {
-        $gte: new Date(formattedDate + 'T00:00:00.000Z'),
-        $lte: new Date(formattedDate + 'T23:59:59.999Z')
-      }
+    const totalSubmitted = await ClaimEntry.countDocuments({
+      submission_date: { $ne: null }
     });
-    const prId = `PR-${today.getFullYear()}-${String(countToday + 1).padStart(3, '0')}`;
+    const prId = `PR-${today.getFullYear()}-${String(totalSubmitted + 1).padStart(3, '0')}`;
+
+
 
     // Update only matched unsubmitted claim entries
     await ClaimEntry.updateMany(

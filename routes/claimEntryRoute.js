@@ -104,6 +104,7 @@ router.post('/calculateAmount', async (req, res) => {
       }
 
 
+
       // 🔷 Scrutiny Claim
       case 'SCRUTINY CLAIM': {
         const { scrutiny_level, scrutiny_no_of_papers, scrutiny_days } = req.body;
