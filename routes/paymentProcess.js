@@ -91,7 +91,8 @@ const sendCreditedEmail = async (recipientEmail, staffName, amount) => {
     from: 'sirajhanifa786@gmail.com',
     to: recipientEmail,
     subject: '💰 Claim Credited Notification',
-    text: `Dear ${staffName},\n\nYour claim of ₹${amount} has been successfully credited via NEFT.\n\nRegards,\nFinance Team\nJamal Mohamed College, Trichy`
+    text:'Test Notification for Claim Management System'
+    // text: `Dear ${staffName},\n\nYour claim of ₹${amount} has been successfully credited via NEFT.\n\nRegards,\nFinance Team\nJamal Mohamed College, Trichy`
 
   };
 
