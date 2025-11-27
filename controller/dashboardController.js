@@ -1,4 +1,5 @@
 const Claim = require('../models/claimEntry');
+const Staff = require('../models/staffmanage')
 
 const getClaimCount = async (req, res) => {
   try {
@@ -21,8 +22,35 @@ const getClaimCount = async (req, res) => {
   }
 };
 
-const getStaff = async(req, res)=>{
+const getStaffCount = async (req, res) => {
+  try {
+    const result = await Staff.aggregate([
+      {
+        $group: {
+          _id: "$employment_type",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
 
-}
+    // Convert array to object
+    let internal = 0;
+    let external = 0;
 
-module.exports = { getClaimCount, getStaff };
+    result.forEach((r) => {
+      if (r._id === "INTERNAL") internal = r.count;
+      if (r._id === "EXTERNAL") external = r.count;
+    });
+
+    res.status(200).json({
+      internal,
+      external,
+      total: internal + external
+    });
+  } catch (error) {
+    console.error("Error fetching staff count:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { getClaimCount, getStaffCount };

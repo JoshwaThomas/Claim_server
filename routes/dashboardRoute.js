@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const {getClaimCount, getStaff} = require('../controller/dashboardController');
+const {getClaimCount, getStaffCount} = require('../controller/dashboardController');
 
 router.get('/totalclaimscount', getClaimCount)
-router.get('/staffoverview', getStaff)
+router.get("/staffcount", getStaffCount);
 
 
 module.exports = router;
