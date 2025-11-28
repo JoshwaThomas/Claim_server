@@ -71,7 +71,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { staff_id, staff_name, department, designation, category, phone_no, email,college, bank_acc_no, ifsc_code, employment_type, bank_name,
-      branch_name, branch_code } = req.body;
+      branch_name } = req.body;
 
     // Check duplicates
     const existing = await Staff.findOne({ $or: [{ phone_no }, { bank_acc_no }] });
@@ -93,7 +93,6 @@ router.post('/', async (req, res) => {
       employment_type,
       bank_name,
       branch_name,
-      branch_code
     });
 
     await newStaff.save();
@@ -144,3 +143,4 @@ router.delete('/delete/:staff_id', async (req, res) => {
 });
 
 module.exports = router;
+
