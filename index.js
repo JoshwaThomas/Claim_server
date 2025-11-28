@@ -55,10 +55,6 @@ app.use('/api/finance', PaymentProcess)
 // Start server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-<<<<<<< HEAD
   console.log(`✅ Server running at http:192.168.10.9:${PORT}`);
-=======
-    console.log(`Server running on port ${PORT}`);
->>>>>>> 39cd0d19cb672bb0ae1eb6e555baa3e4467b3f7a
 });
 
